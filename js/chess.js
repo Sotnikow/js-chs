@@ -21,6 +21,15 @@ function Chess (arg) {
 	chs.fn = [];
 	// Работа с доской
 	chs.board = [];
+	// Работа с историей
+	chs.history = [];
+	// Записи об истории
+	chs.history.all = [];
+	
+	// Добавить запись в историю
+	chs.history.add = function (el, new_pos) {
+		chs.history.all.push({element: el, new_position: new_pos});
+	}
 	
 	// Поиск субстроки в субстроке
 	chs.fn.findSubstrInSubstr = function (list, arg, val) {
@@ -91,13 +100,14 @@ function Chess (arg) {
 						return -Math.pow(-1, this.team());
 					},
 					newPosition: function (new_pos) {
-						if ((new_pos[0] >= 1 && new_pos[0] <= 8 )&&( new_pos [1] >= 1 && new_pos [1] <= 8)) {
+						if ((new_pos[0] >= 1 && new_pos[0] <= 8 ) && ( new_pos [1] >= 1 && new_pos [1] <= 8) && ((ch.history.all.length > 0 && ch.history.all.slice(-1)[0].element.team() != this.team()) || (ch.history.all.length == 0))) {
 							var n_rights = this.type.rights.length;
 							console.log('Всего прав: '+ n_rights);
 							var ok = false;
+							var pray = false;
 							for (var i = 0; i < n_rights; i++) {
-								console.log('- правило ', i+1);
 								result = this.type.rights[i].algorithm(this, new_pos);
+								console.log('- правило '+ (i+1) +' ['+ this.type.rights[i].name +']: '+ result);
 								switch (result) {
 									case true:
 										ok = true;
@@ -108,6 +118,7 @@ function Chess (arg) {
 								}
 							}
 							if (ok) {
+								chs.history.add(this, new_pos);
 								this.position = new_pos;
 								chs.board.refresh();
 								return true;
